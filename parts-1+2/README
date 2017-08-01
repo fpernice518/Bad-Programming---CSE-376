@@ -1,0 +1,131 @@
+Frank Pernice
+CSE 376
+Homework 2: Bugs
+
+======README=======
+
+- The provided programs illustrate various poor programming practices and their consequences
+
+- All programs seem to execute properly (that is, with bugs), I had no issues triggering the
+  requested errors
+
+- I found it interesting that on the Solaris machine, I was able to access my previous print 
+  statement (albiet backwards) and print it out in reverse by underflowing the memory
+
+- It should be noted that on the Solaris machine, `make` throws a warning about clock skew.
+  This is probably a consequence of me working on my local machine and pushing to the rmeote
+  server.
+
+- When running all programs, `make` should sort the programs and run them in order. 
+
+- When building all programs, I used built-in make rules (hence why there are no commands  
+  defined for `make all-gcc`). 
+
+------Functionality---------
+
+1) Takes a static string and calls putchar() (length + 500) times to produce 
+   a static overflow
+
+2) Same as 1, but prints a string backwards from length to (length-200)
+
+3) Same as 1, except the string is dynamically allocated and copied (from a 
+   static string) into the heap via strcpy(). It is then overflowed
+
+4) Allocates space in the heap with strcpy() for the string "Racecar" It then 
+   prints the string forwards and then in backwards. Like #2, "racecar" is
+   a palindrome
+
+NOTE: For the above 4, I'm assuming that by "Check the index of..." the 
+      professor means that we are to perform a read overflow, not a write
+      overflow. When performing `make run`, EXPECT THE OUTPUT TO PAUSE
+      AND WAIT FOR USER INPUT AT PROGRAM 6.
+
+5) Allocates room for 8 bytes with malloc, then changes the pointer value
+   to the number 0 and triesd to free the pointer.
+
+6) Same as 5, but the NULL macro is used rather than the hardcoded number 0
+
+7) Creates a pointer to an automatic string (placed on the stack) and then
+   tries to free it.
+
+8) Allocates 10 bytes and then tries to free the returned pointer twice
+
+9) Creates a pointer to some automatic string and then tries to reallocate
+   the pointer to a new heap space with 7 bytes.
+
+10) Allocates a character pointer and appends some characters to it. It
+    then frees the pointer and tries to use those characters.
+
+11) Creates a null pointer ans then tries to derefernce it so that
+    it can add characters to memory and print the string.
+
+12) Same as 11 but it will use the numbers 1 and -1 for the pointer
+    value rather than zero.
+    IMPORTANT: This program requires user input so that both cases
+    can be shown in the same program. The user should input 'n' for
+    -1 and 'p' for 1.
+
+13) Allocates a character pointer, sets the contents of memory, and
+    then increments the pointer. It then tries to dereference it
+    and cast the pointer to an integer pointer to complete the
+    misallignment. 
+
+14) Allocates 20 bytes of space and creates two pointers: one that points
+    to the start of the memory block and another which is incremented
+    by 5. It then calls memcopy() to fill the data pointed to by each pointer
+    with a set of 1's or 2's respectively. Once this is done, the memory
+    is dumped to the screen and the overlap is shown.
+
+15) Creates a float and an int which both have a value of 1. It compares them
+    directly to prove that the two varaibles are in fact equal. Then it
+    creates two integer pointers which point to these variables (using casts
+    to suppress the compiler warnings) and tries to dereference the pointers
+    and try the comparison again.
+
+16) Performs some random computation on a pointer's contents and then tries to
+    use the pointer.
+
+17) Tries to get the address of an unitialized variable and dereference it
+    so that it can prints its contents.
+
+18) Tries to copy an array from a non-null pointer to a NULL pointer
+
+19) Opposite of 18
+
+20) Same as 19 except we don't actually copy in anything because
+    the third parameter of memcpy() is zero. This has no effect.
+
+21) Contains two functions, fo and bar, which return integer pointers to
+    automatic variables (which they have modified in some way)
+    and take an integer. The program begins by calling foo(2) and
+    then saves the return pointer. It then tries to dereference
+    the returned pointer from foo and pass that value into bar, after which
+    some really funky stuff happens.
+
+-------Files included-------
+#source code
+prog-01.c
+prog-02.c
+prog-03.c
+prog-04.c
+prog-05.c
+prog-06.c
+prog-07.c
+prog-08.c
+prog-09.c
+prog-10.c
+prog-11.c
+prog-12.c
+prog-13.c
+prog-14.c
+prog-15.c
+prog-16.c
+prog-17.c
+prog-18.c
+prog-19.c
+prog-20.c
+prog-21.c
+
+#other files
+Makefile
+README

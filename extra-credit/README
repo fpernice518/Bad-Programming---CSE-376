@@ -1,0 +1,28 @@
+Frank Pernice
+CSE 376
+Homework 2: Extra Credit
+
+======README=======
+
+I believe I have been able to demonstrate the following Electric Fence features
+
+ * Underflow protection
+ * overflow protection
+ * free protection
+
+I have provided sample code which demonstrates this. Of course, the code must
+be fun with gdb in order to show Electric Fence's true potential.
+
+The provided Makefile can be used to build each of the source files with different EF
+flags (the pattern (%) should be replaced with the name of the source file minus the.c)
+
+ -  %               = no electric fence at all
+ -  %-efence        = efence with default flags
+ -  %-efence-pbelow = efence with undeflow protection
+ -  %-efence-pfree  = efence with free protection
+
+
+------------------
+
+As seen in the Make Dependency folder, I believe I've implemented the dependency 
+target to the best of my ability. 

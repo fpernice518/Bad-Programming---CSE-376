@@ -1,0 +1,77 @@
+Frank Pernice
+CSE 376
+Homework 2: XMALLOC
+
+======README=======
+
+------Functionality---------
+
+- The provided xmalloc library is used to detect some of the bugs associated 
+  with the regular malloc() and free() functions. xmalloc() and xfree() perform
+  more rigorous tests on the values passed in than the conventional malloc()  
+  and free() functions. 
+
+- The library utilizes a linked list to keep track of each block of memory
+  allocated with xmalloc(). This list persists for the entire length of
+  the program (and is only free()'d upon termination). 
+
+- The goal was to hide all of this from the user; the functions should appear
+  to behave identically to conventional malloc() and free(). To do this,
+  the header file contains little more than function prototypes for xmalloc()
+  and xfree(). Everything else that the user need not see is located
+  in the source file. All private functions are declared as static to protect
+  them from the user's view (and inline where deemed efficient).
+
+- The xmalloc() function does the following:
+     
+    * Checks if passed size is less thn or equal to zero. if so, warn and exit
+    * Else, allocate the memory and check if returned pointer is NULL. if so
+      post error and exit.
+    * If the root node of the linked-list has not been created, do so.
+      Also, register the terminate() function with atexit() so that it
+      runs upon exit.
+    * Then make a node for the requested allocation (if it doesn't exist)
+      and add it to the list. If the pointer has already been allocated,
+      check if it's been free()'d. If not, post warning and exit, otherwise 
+      continue. Store the pointer value and the block size; set the `allocated` 
+      boolean flag to true and the next node (tail) to NULL. If the node cannot 
+      be created, post an error and exit.
+    * Finally, return the pointer like regular malloc()
+
+- The xfree() function does the following:
+    
+    * Checks if the passed pointer is NULL. if so, post a warning and exit.
+      otherwise continue.
+    * Check if the pointer exists in the linked-list. If not, that means it
+      was never allocated and therefore cannot be freed. This also ensures 
+      that a a pointer cannot be freed in the middle of an xmalloc()'d 
+      region. If this fails, post a warning and exit.
+    * Check if the `allocated` boolean is true. If it's true, we continue.
+      If it's false, then we post a double-free warning and exit.
+    * Continuing, we deallocate it from the linked list by setting the
+      boolean accordinly and setting the size to zero (but it is not removed
+      from the list).
+
+- Upon termination, we do the following:
+    
+    * Iterate through the list and check the `allocated` flag of each node.
+      If it's still allocated, we warn of a memory leak.
+    * Then we deconstruct the linked list and free its memory.
+
+------Included files---------
+
+#library code
+xmalloc.c
+xmalloc.h
+
+#test code
+dbl-free.c   -use "make dbl-free"
+leak.c       -use "make leak"
+noMalloc.c   -use "make no-malloc"
+prog-08.c    -use "make prog-08"
+
+#others
+Makefile
+README
+
+

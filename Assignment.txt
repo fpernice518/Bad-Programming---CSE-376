@@ -1,0 +1,201 @@
+		 CSE-376 (Fall 2014) Homework Assignment #2
+			  (Handout #6, version 1)
+		   Due Friday, October 24, 2014, 11:59pm
+	       (This assignment is worth 10% of your grade.)
+
+
+*** PURPOSE:
+
+To become familiar with many common C bugs involving pointers and memory
+corruptions.
+
+This assignment has two parts.  In part 1, you will be asked to write code
+that triggers these problems.  You will be asked to write a series of small
+*BAD* C programs, each of which exhibits and "tickles" a particular C bug.
+In part 2, you will be asked to write a debugging "library" to monitor
+memory allocations and identify memory corruption bugs.
+
+Total expected length of C code written is 300-500 lines.  Each of the 20+
+test programs you have to write can be done in just a few lines of C code.
+
+Note: when I use the term "object" below, I'm not referring to anything
+object-oriented, but to any type of "thing" (data type) that C can refer to;
+it can be an int, an int*, a struct, a pointer to a struct, etc.
+
+
+** Part 1 (63 points out of 100):
+
+Your task is to write a series of small C programs, each of which will test
+an individual bug.
+
+Consider this program:
+
+	main()
+	{
+	  char buf[10];
+	  strcpy(buf, "abcdefghij");
+	}
+
+If you compiled it with the regular gcc, it will compile just "fine" and may
+even run ok (in some cases, smart libc/malloc libraries catch certain
+problems).  However, your program caused a buffer overflow and overwritten
+data past the logical end of 'buf'.  That's a bug that can wreck havoc on
+programs.
+
+You should write individual, separate small C programs to test the following
+conditions (note that some of these conditions may be very similar and the
+same code may satisfy several conditions):
+
+01: Check the index of a statically-allocated array when overflowing
+    (index is the offset within an array)
+02: Check the index of a statically-allocated array when under-flowing
+03: Check the index of a dynamically-allocated array when overflowing
+04: Check the index of a dynamically-allocated array when under-flowing
+05: freeing an illegal zero (0) address
+06: freeing a NULL pointer (which really is a zero...)
+07: freeing a non-heap memory
+08: double-freeing memory
+09: realloc'ing a non-heap memory
+10: using dynamic memory after it has been free()'ed
+11: using illegal pointer addresses (using "0")
+12: same as #11, but using small positive/negative integers.
+13: using pointers that are not aligned on word boundaries (SIGBUS)
+14: partially overlapping memcpy() arguments
+15: comparing pointers to objects of different/incompatible types
+16: creating an illegal pointer when using pointer arithmetic
+17: reading uninitialized memory
+18-19: memcpy passed a NULL pointer in any of its args (2 programs)
+20: memcpy passed a NULL pointer but with zero copy length
+21: referring to an automatic stack object that has been popped from the
+    stack (the object is not valid in the scope it is being referenced)
+
+Your code should be well documented, properly styled and indented.
+
+You should test your code on two systems: a-centos58.cs.stonybrook.edu and
+a-solaris9.cs.stonybrook.edu.  That is, each test case will be a single C
+source file that COMPILES CLEANLY on both Unix systems.  Only during the
+execution of the program, should the bug manifest itself.  Note that the
+manifestation of the bug may cause a core dump or may not: that's ok.  What
+matters is that you understand the nature of the bug and ensure that your
+code indeed has that bug.
+
+One important goal is that you are not required to write long and complex
+code for any of the tests.  The key issue is to write SMALL pieces of code
+that clearly exhibit each bug/problem.  In many cases the solution may
+appear to you very simple (it is! :-) On the other hand, the programs should
+try to compile and run just fine for as many of the programs you have (e.g.,
+without a core dump or segmentation violation) preferably using:
+
+	gcc -Wall -Werror foo.c
+	./a.out
+
+In other words, the code you write should be hopefully undetected by normal
+gcc (either during compile time or run time).  The goal is to teach you how
+programs can have serious bugs and yet compile and run ok (at least for some
+length of time).  Note: you will find that on certain OSs, gcc and/or glibc
+have gotten smart enough to catch errors.  In those cases, it may be
+impossible to have a program "perfectly" compiling and running with gcc.
+That's OK: you should describe in the README file what experiences you had
+such as these, and you will qualify for full credit.
+
+
+** Part 2: Makefile (19 points)
+
+Write a Makefile with the following targets:
+
++ prog-XX-gcc (where XX is a number of a test): to build program XX
+  using gcc.
+
++ run-XX-gcc (where XX is a number of a test): to run program XX which
+  was built using gcc.
+
++ all-gcc: to build all tests using gcc.
+
++ all: to build all tests (gcc) (this should be the default target).
+
++ run-gcc: to run all test programs which were built using gcc.
+
++ run: to run all tests programs (built using gcc).
+
++ clean: to cleanup all temp/object files which can be rebuilt.
+
+Your Makefile should be as small and well-written as possible.  Avoid
+writing repeated rules as much as possible.  Use variables when and where it
+makes sense.  And use "%" rules for Makefiles as well.
+
+Note: this describes what you need to do for your Makefile for part 1.  For
+the remaining parts, you will also have to add targets to your Makefile,
+which you should document in the README carefully.
+
+
+*** Part 3 (18 points):
+
+Write your own simple malloc-debugging "library" (a .c file you can compile
+and link with another program).  This library should export AT LEAST these
+two functions: xmalloc() and xfree(), which should have the same
+functionality as the usual malloc/free functions.  In turn, xmalloc and
+xfree should use malloc and free, respectively.
+
+xmalloc and xfree should track what memory objects are being allocated and
+freed, and should warn when these conditions occur: double free, double
+malloc (a memory leak), trying to free something in the middle of an
+allocated memory chunk, and memory leaks.  By "warn" I mean that they should
+"fprintf(stderr)" a descriptive error message saying what went wrong
+(optionally, you can also exit the program with an appropriate non-zero exit
+status).  Hint: think about the API of your library and how you would detect
+leaks or any other unfreed memory (extend the API as needed, but keep it
+simple).
+
+Your debugging library should be put into a file called xmalloc.c.  Next,
+write one or more programs that link with your xmalloc.o and then exercise
+each of the "bad things" that your library catches.
+
+Your code should build and run on both a-centos58 and a-solaris9.
+
+
+*** SUBMISSION (applicable to extra credit as well)
+
+Your GIT-based submission should include the following files
+
+- a README file describing what each test program does (in parts 1 and 3).
+  The README should clearly describe what Extra Credit parts, if any, you
+  have done.
+
+- a series of test programs named prog-01.c, prog-02.c, ... prog-17.c, etc.
+  Please carefully follow the names of these files and their
+  capitalization.
+
+- Any other source/header files you need for part 3 (and Extra
+  Credit).
+
+- a Makefile
+
+(See the class Web page for GIT submission guidelines.)
+
+
+*** EXTRA CREDIT (up to 12 points, optional for all students):
+
+Note: you must clearly document any EC part you've done, in the README you
+submit.  Be sure to explain what EC features you've implemented, so we can
+test them.  Otherwise we will assume you have not done any of the EC parts,
+and won't attempt to grade them.
+
+[8 pts] Learn how to use the ElectricFence library on a-centos58 (already
+  installed, called libefence).  Write a series (at least four) of small
+  programs, each one demonstrating a separate feature of ElectricFence:
+  reusing free()'ed memory, buffer overrun, underrun, memory poisoning, etc.
+  Your programs should compile and run with gcc, but fail to run if linked
+  with ElectricFence.  Add appropriate rules to the Makefile and explain
+  your programs in the README.
+
+[4 pts] make depend: to build a dependency set of files automatically, which
+  will get included in the makefile if they exist.  You can assume GNU Make
+  and GNU Gcc syntax (so check the gcc man page for -MD options).
+
+
+Good Luck.
+
+
+* ChangeLog
+
+v1: initial draft.
